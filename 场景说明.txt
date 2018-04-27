@@ -1,0 +1,107 @@
+
+控制器操作：
+登录服务器：
+用户名/密码 root/cernet@ynu2017
+v4地址：202.205.7.131
+v6地址：2001:da8:20d:21::131
+
+启动opendaylight控制器
+cd distribution-karaf-0.5.3-Boron-SR3/
+cd bin/
+./karaf 
+
+拓扑端操作：
+启动 mininet 服务器
+10.10.10.139
+2001:da8:270:2018:f816:3eff:fec7:a327 
+用户名：　ubuntu 　　密码：　ubuntu
+
+进行根目录  查看是否存在 topo-changjing1.py  topo-changjing2.py  topo-changjing-3-v4.py ipv6-r文件
+
+
+
+场景1 
+2.执行命令启动mininet，生成测试拓扑
+  mn --custom topo-changjing1.py --topo mytopo --controller=remote,ip=202.205.7.131,port=6633 --switch ovsk,protocols=OpenFlow13
+3. netstat -anp|grep 6633 查看是否监听
+4. 登录控制平台：http://202.205.7.131:8080/index.html 查看网络拓扑
+5. 打开和断开链接
+   link s1 s3 down
+验证数据传输是否正常
+
+
+场景二
+2.执行命令启动mininet，生成测试拓扑
+mn --custom topo-changjing2.py --topo mytopo --controller=remote,ip=202.205.7.131,port=6633 --switch ovsk,protocols=OpenFlow13
+3. netstat -anp|grep 6633 查看是否监听
+4. 登录控制平台：http://202.205.7.131:8080/index.html 查看网络拓扑
+5. 打开和断开链接
+   link s1 s2 down
+   link s1 s5 down
+验证h1 之间的h3数据传输是否正常
+h1 ping h3
+
+
+场景3 -v4
+2.执行命令启动mininet，生成测试拓扑
+  mn --custom  topo-changjing-3-v4.py  --topo mytopo --controller=remote,ip=202.205.7.131,port=6633 --switch ovsk,protocols=OpenFlow13
+3. netstat -anp|grep 6633 查看是否监听
+4. 登录控制平台：http://202.205.7.131:8080/index.html 查看网络拓扑
+5. 查看网络是否互通 h1s1 ping -c 4 h1s2 或者 pingall 
+查看路由：h1s1 netstat -rn   或者  h1s1 route 
+
+更改路由后拓扑演示：
+2.执行命令启动mininet，生成测试拓扑
+  mn --custom  ipv4.y  --topo mytopo --controller=remote,ip=202.205.7.131,port=6633 --switch ovsk,protocols=OpenFlow13
+3. netstat -anp|grep 6633 查看是否监听
+4. 登录控制平台：http://202.205.7.131:8080/index.html 查看网络拓扑
+5. 查看网络是否互通 h1s1 ping -c 4 h1s2 或者 pingall 
+查看路由：h1s1 netstat -rn   或者  h1s1 route 
+
+
+v6场景
+2.执行命令启动mininet，生成测试拓扑
+  python ipv6-r 202.205.7.131:6633
+3. netstat -anp|grep 6633 查看是否监听
+4. 登录控制平台：http://202.205.7.131:8080/index.html 查看网络拓扑
+5. h0 ping6 -c 1 fb00::3
+h0 ping6 -c 1 fc00::3
+h0 ping6 -c 1 fb00::2
+h0 ping6 -c 1 fd00::2
+h0 ping6 -c 1 fd00::3
+查看路由：h0 netstat -6 -rn   
+  
+
+
+场景4
+关闭控制器服务器：
+v4地址：202.205.7.131
+v6地址：2001:da8:20d:21::131
+
+
+启动
+10.10.10.138
+2001:da8:270:2018:f816:3eff:fefb:e8f9
+用户名：　ubuntu 　　密码：　ubuntu
+
+vm1操作——2001:da8:270:2018:f816:3eff:fefb:e8f9
+（1）创建拓扑： mn --topo single,1
+（2）创建vxlan接口：sh ovs-vsctl add-port s1 vxlan
+（3）每一侧设置vxlan接口:sh ovs-vsctl set interface vxlan type=vxlan option:remote_ip=10.10.10.139
+（4）为主机设置v6地址
+     h1 ifconfig h1-eth0 inet6 add fc00::1/64
+      h1 ping6 fc00::2 -I h1-eth0
+
+
+vm2操作——2001:da8:270:2018:f816:3eff:fec7:a327 
+（1）创建拓扑：mn --topo single,1
+（2）创建vxlan接口：sh ovs-vsctl add-port s1 vxlan
+（3）每一侧设置vxlan接口:sh ovs-vsctl set interface vxlan type=vxlan option:remote_ip=10.10.10.138
+（4）为主机设置v6地址
+     h1 ifconfig h1-eth0 inet6 add fc00::2/64
+     h1 ping6 fc00::1 -I h1-eth0
+
+
+
+
+
