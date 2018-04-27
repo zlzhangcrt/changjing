@@ -1,0 +1,15 @@
+场景四：
+vm1操作：
+（1）创建拓扑： mn --topo single,1
+（2）创建vxlan接口：sh ovs-vsctl add-port s1 vxlan
+（3）每一侧设置vxlan接口:sh ovs-vsctl set interface vxlan type=vxlan option:remote_ip=10.10.10.139
+（4）为主机设置v6地址
+     h1 ifconfig h1-eth0 inet6 add fc00::1/64
+      h1 ping6 fc00::2 -I h1-eth0
+vm2操作：
+（1）创建拓扑：mn --topo single,1
+（2）创建vxlan接口：sh ovs-vsctl add-port s1 vxlan
+（3）每一侧设置vxlan接口:sh ovs-vsctl set interface vxlan type=vxlan option:remote_ip=10.10.10.138
+（4）为主机设置v6地址
+     h1 ifconfig h1-eth0 inet6 add fc00::2/64
+     h1 ping6 fc00::1 -I h1-eth0
